@@ -9,3 +9,6 @@
  Hello, world
 this is yangeunb's Web Server. 
 
+2014-01-23 Eunbong Yang
+
+ * Changed server.py and test_server.py to fulfill the requirements.
