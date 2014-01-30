@@ -2,88 +2,195 @@
 import random
 import socket
 import time
+##import urlparse
+from urlparse import urlparse, parse_qs
+import urllib
 
-beginner = 'HTTP/1.0 200 OK\r\n' + \
-           'Content-type: text/html\r\n' + \
-           '\r\n'
-def main():
-	s = socket.socket()         # Create a socket object
-	host = socket.getfqdn() # Get local machine name
-	port = random.randint(8000, 9999)
-	s.bind((host, port))        # Bind to the port
+# Global Variables
 
-	print 'Starting server on', host, port
-	print 'The Web server URL for this would be http://%s:%d/' % (host, port)
+header = 'HTTP/1.0 200 OK\r\n' + \
+         'Content-type: text/html\r\n' + \
+         '\r\n'
 
-	s.listen(5)                 # Now wait for client connection.
+header2 = 'HTTP/1.0 200 OK\r\n' + \
+          'Content-type: application/x-www-form-urlencoded\r\n' + \
+          '\r\n'
 
-	print 'Entering infinite loop; hit CTRL-C to exit'
-	while True:
-                # Establish connection with client.    
-                c, (client_host, client_port) = s.accept()
-                print 'Got connection from', client_host, client_port
-		requestInfo = c.recv(1000)
-		requestType = requestInfo.split()[0]
-		if requestType == "GET":
-			requestURL = requestInfo.split()[1]
+def handle_connection_default(conn, params):
+	defaultRequest = header + '<h1>Hello, world.</h1>' + \
+                         'This is yangeunb\'s Web server.'+ \
+                         '<h1>home</h1>' + \
+                         '<ul>' + \
+                         '<li><a href="/content">Content</a></li>' + \
+                         '<li><a href="/file">File</a></li>' + \
+                         '<li><a href="/image">Image</a></li>' + \
+                         '<li><a href="/form">Form</a></li>' +\
+                         '</ul>'
 
-			if requestURL == '/':
-				handle_connection(c)
-			elif requestURL == '/content':
-				connection_content(c)
-			elif requestURL == '/file':
-				connection_file(c)
-			elif requestURL == '/image':
-				connection_image(c)
-			else:
-				handle_connection_failure(c)
+	return defaultRequest
+	
+def connection_content(conn, params):
+	request = header + '<h1>Here are some Contents</h1>'
+	return request
+    
 
-		elif requestType == "POST":
-			handle_post_connection(c)
+def connection_file(conn, params):
+        request = header + '<h1>Here is a File</h1>'
+        return request
 
-		else:
-			print 'Error: Invalid Request Made'
-			break
+def connection_image(conn, params):
+	request = header + '<h1>Here is an Image</h1>'
+	return request
+
+def connection_form(conn, params):
+        request = header + \
+                  '<h1>Form</h1>' + \
+                  "<form action='/submit' method='GET'>"+\
+                  "First Name: <input type='text' name='firstname'><br></br>"+\
+                  "Last Name: <input type='text' name='lastname'><br></br>"+\
+                  "<input type='submit' name='submit'><br></br>"+\
+                  "</form>\r\n"
+        print request
+        return request
+
+def connection_submit(conn, params):
+        firstName = params['firstname'][0]
+        lastName = params['lastname'][0]
+
+        
+        
+        request = header + \
+                  '<h1>Hello %s %s</h1>'%(firstName,lastName)+\
+                  '<a href="/">Home</a><br></br>'+\
+                  "This is Eunbong's Web server."
+
+        print request
+        return request
+        
+
+def handle_connection_failure(conn, params):
+	request = header + \
+                  '<h1>Bad Request</h1>'
+	return request
+
+def handle_post_connection(conn, params):
+	request = header2 + '<h1>this is a post method</h1>' + \
+                  'This is yangeunb\'s Web server.'+ \
+                  '<h1>home</h1>' + \
+                  '<ul>' + \
+                  '<li><a href="/content">Content</a></li>' + \
+                  '<li><a href="/file">File</a></li>' + \
+                  '<li><a href="/image">Image</a></li>' + \
+                  '<li><a href="/form">Form</a></li>' +\
+                  '</ul>'
+	return request
+    
+def handle_post_form(conn, params):
+        request = header2 + \
+                  '<h1>Form</h1>' + \
+                  "<form action='/submit' method='POST'>"+\
+                  "First Name: <input type='text' name='firstname'><br></br>"+\
+                  "Last Name: <input type='text' name='lastname'><br></br>"+\
+                  "<input type='submit' name='submit'><br></br>"+\
+                  "</form>\r\n"
+        return request
+
+def handle_post_submit(conn, params):
+    headers = []
+    body_exist = False
+    body = ""
+    for line in params.split("\r\n"):
+        if body_exist:
+            body = line
+            continue
+        if line == "":
+            body_exist = True
+        headers.append(line)
+    
+    path = params.split()[1]
+    para = parse_qs(body)
+
+    firstName = para['firstname'][0]
+    lastName = para['lastname'][0]
+
+    name = 'Hello {0} {1}'.format(para['firstname'][0],para['lastname'][0])
+
+    request = header2 + \
+              '<h1>this is a post method</h1><br></br>'+\
+              '<h1>Hello %s %s</h1>'%(firstName,lastName)+\
+              '<a href="/">Home</a><br></br>'+\
+              "This is Eunbong's Web server."
+
+    return request
 
 
 def handle_connection(conn):
-	defaultRequest = beginner + '<h1>Hello, world.</h1>' + \
-                                    'This is yangeunb\'s Web server.'+ \
-                                    '<h1>/home</h1>' + \
-			            '<ul>' + \
-                                    '<li><a href="/content">Content</a></li>' + \
-                                    '<li><a href="/file">File</a></li>' + \
-			            '<li><a href="/image">Image</a></li>' + \
-			            '</ul>'
-	conn.send(defaultRequest)
-	conn.close()
+    requestInfo = conn.recv(1000)
+    
+    method = requestInfo.split()[0]
 
-def connection_content(conn):
-	request = beginner + '<h1>Here are some Contents</h1>'
-        #conn.send(beginner)
-        #conn.send('<h1>Here are some Contents</h1>')
-	conn.send(request)
-	conn.close()
+    response = ''
+    
+    if method == "GET":
+        path = requestInfo.split()[1]
+##        print path
+        params = parse_qs(urlparse(path)[4])
+        real_path = urlparse(path)[2]
+##        print page
+        if real_path == '/':
+            response = handle_connection_default(conn, params)
+        elif real_path == '/content':
+            response = connection_content(conn, params)
+        elif real_path == '/file':
+            response = connection_file(conn, params)
+        elif real_path == '/image':
+            response = connection_image(conn, params)
+        elif real_path == '/form':
+            response = connection_form(conn, params)
+        elif real_path == '/submit':
+##        elif path == '/submit?firstname=Eunbong&lastname=Yang&submit=Submit':
+##            print 'submit'
+            response = connection_submit(conn, params)
+        else:
+            response = handle_connection_failure(conn, params)
 
-def connection_file(conn):
-        request = beginner + '<h1>Here is a File</h1>'
-        conn.send(request)
-        conn.close()
+    elif method == "POST":
+        path = requestInfo.split()[1]
+        
+        if path == '/':
+            response = handle_post_connection(conn, '')
+        elif path == '/form':
+            response = handle_post_form(conn, '')
+        elif path == '/submit':
+            response = handle_post_submit(conn, requestInfo)
+##                else:
+##                        response = handle_connection_failure(conn, '')
 
-def connection_image(conn):
-	request = beginner + '<h1>Here is an Image</h1>'
-	conn.send(request)
-	conn.close()
+    else:
+            print 'Error: Invalid Request Made'
 
-def handle_connection_failure(conn):
-	request = beginner + '<h1>Bad Request</h1>'
-	conn.send(request)
-	conn.close()
+    conn.send(response)
+    conn.close()
 
-def handle_post_connection(conn):
-	request = beginner + '<h1>this is a post method</h1>'
-	conn.send(request)
-	conn.close()
 
+def main():
+    s = socket.socket()         # Create a socket object
+    host = socket.getfqdn() # Get local machine name
+    port = random.randint(8000, 9999)
+    s.bind((host, port))        # Bind to the port
+
+    print 'Starting server on', host, port
+    print 'The Web server URL for this would be http://%s:%d/' % (host, port)
+
+    s.listen(5)                 # Now wait for client connection.
+
+    print 'Entering infinite loop; hit CTRL-C to exit'
+    while True:
+        # Establish connection with client.    
+        c, (client_host, client_port) = s.accept()
+        print 'Got connection from', client_host, client_port
+        handle_connection(c)
+            
 if __name__ == '__main__':
-	main()
+    main()
+
