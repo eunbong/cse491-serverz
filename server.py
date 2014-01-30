@@ -2,7 +2,6 @@
 import random
 import socket
 import time
-##import urlparse
 from urlparse import urlparse, parse_qs
 import urllib
 
@@ -17,85 +16,83 @@ header2 = 'HTTP/1.0 200 OK\r\n' + \
           '\r\n'
 
 def handle_connection_default(conn, params):
-	defaultRequest = header + '<h1>Hello, world.</h1>' + \
-                         'This is yangeunb\'s Web server.'+ \
-                         '<h1>home</h1>' + \
-                         '<ul>' + \
-                         '<li><a href="/content">Content</a></li>' + \
-                         '<li><a href="/file">File</a></li>' + \
-                         '<li><a href="/image">Image</a></li>' + \
-                         '<li><a href="/form">Form</a></li>' +\
-                         '</ul>'
+    defaultRequest = header + '<h1>Hello, world.</h1>' + \
+                     'This is yangeunb\'s Web server.'+ \
+                     '<h1>home</h1>' + \
+                     '<ul>' + \
+                     '<li><a href="/content">Content</a></li>' + \
+                     '<li><a href="/file">File</a></li>' + \
+                     '<li><a href="/image">Image</a></li>' + \
+                     '<li><a href="/form">Form</a></li>' +\
+                     '</ul>'
 
-	return defaultRequest
-	
+    return defaultRequest
+    
 def connection_content(conn, params):
-	request = header + '<h1>Here are some Contents</h1>'
-	return request
+    request = header + '<h1>Here are some Contents</h1>'
+    return request
     
 
 def connection_file(conn, params):
-        request = header + '<h1>Here is a File</h1>'
-        return request
+    request = header + '<h1>Here is a File</h1>'
+    return request
 
 def connection_image(conn, params):
-	request = header + '<h1>Here is an Image</h1>'
-	return request
+    request = header + '<h1>Here is an Image</h1>'
+    return request
 
 def connection_form(conn, params):
-        request = header + \
-                  '<h1>Form</h1>' + \
-                  "<form action='/submit' method='GET'>"+\
-                  "First Name: <input type='text' name='firstname'><br></br>"+\
-                  "Last Name: <input type='text' name='lastname'><br></br>"+\
-                  "<input type='submit' name='submit'><br></br>"+\
-                  "</form>\r\n"
-        print request
-        return request
+    request = header + \
+              '<h1>Form</h1>' + \
+              "<form action='/submit' method='GET'>"+\
+              "First Name: <input type='text' name='firstname'><br></br>"+\
+              "Last Name: <input type='text' name='lastname'><br></br>"+\
+              "<input type='submit' name='submit'><br></br>"+\
+              "</form>\r\n"
+
+    return request
 
 def connection_submit(conn, params):
-        firstName = params['firstname'][0]
-        lastName = params['lastname'][0]
+    firstName = params['firstname'][0]
+    lastName = params['lastname'][0]
 
-        
-        
-        request = header + \
-                  '<h1>Hello %s %s</h1>'%(firstName,lastName)+\
-                  '<a href="/">Home</a><br></br>'+\
-                  "This is Eunbong's Web server."
+    request = header + \
+              '<h1>Hello %s %s</h1>'%(firstName,lastName)+\
+              '<a href="/">Home</a><br></br>'+\
+              "This is Eunbong's Web server."
 
-        print request
-        return request
+    return request
         
 
 def handle_connection_failure(conn, params):
-	request = header + \
-                  '<h1>Bad Request</h1>'
-	return request
+    request = header + \
+              '<h1>Bad Request</h1>'
+    return request
 
 def handle_post_connection(conn, params):
-	request = header2 + '<h1>this is a post method</h1>' + \
-                  'This is yangeunb\'s Web server.'+ \
-                  '<h1>home</h1>' + \
-                  '<ul>' + \
-                  '<li><a href="/content">Content</a></li>' + \
-                  '<li><a href="/file">File</a></li>' + \
-                  '<li><a href="/image">Image</a></li>' + \
-                  '<li><a href="/form">Form</a></li>' +\
-                  '</ul>'
-	return request
+    request = header2 + '<h1>this is a post method</h1>' + \
+              'This is yangeunb\'s Web server.'+ \
+              '<h1>home</h1>' + \
+              '<ul>' + \
+              '<li><a href="/content">Content</a></li>' + \
+              '<li><a href="/file">File</a></li>' + \
+              '<li><a href="/image">Image</a></li>' + \
+              '<li><a href="/form">Form</a></li>' +\
+              '</ul>'
+    return request
     
 def handle_post_form(conn, params):
-        request = header2 + \
-                  '<h1>Form</h1>' + \
-                  "<form action='/submit' method='POST'>"+\
-                  "First Name: <input type='text' name='firstname'><br></br>"+\
-                  "Last Name: <input type='text' name='lastname'><br></br>"+\
-                  "<input type='submit' name='submit'><br></br>"+\
-                  "</form>\r\n"
-        return request
+    request = header2 + \
+              '<h1>Form</h1>' + \
+              "<form action='/submit' method='POST'>"+\
+              "First Name: <input type='text' name='firstname'><br></br>"+\
+              "Last Name: <input type='text' name='lastname'><br></br>"+\
+              "<input type='submit' name='submit'><br></br>"+\
+              "</form>\r\n"
+    return request
 
 def handle_post_submit(conn, params):
+    ''' this code is helping from Jason's code'''
     headers = []
     body_exist = False
     body = ""
@@ -112,8 +109,6 @@ def handle_post_submit(conn, params):
 
     firstName = para['firstname'][0]
     lastName = para['lastname'][0]
-
-    name = 'Hello {0} {1}'.format(para['firstname'][0],para['lastname'][0])
 
     request = header2 + \
               '<h1>this is a post method</h1><br></br>'+\
@@ -133,10 +128,8 @@ def handle_connection(conn):
     
     if method == "GET":
         path = requestInfo.split()[1]
-##        print path
         params = parse_qs(urlparse(path)[4])
         real_path = urlparse(path)[2]
-##        print page
         if real_path == '/':
             response = handle_connection_default(conn, params)
         elif real_path == '/content':
@@ -148,8 +141,6 @@ def handle_connection(conn):
         elif real_path == '/form':
             response = connection_form(conn, params)
         elif real_path == '/submit':
-##        elif path == '/submit?firstname=Eunbong&lastname=Yang&submit=Submit':
-##            print 'submit'
             response = connection_submit(conn, params)
         else:
             response = handle_connection_failure(conn, params)
@@ -163,8 +154,6 @@ def handle_connection(conn):
             response = handle_post_form(conn, '')
         elif path == '/submit':
             response = handle_post_submit(conn, requestInfo)
-##                else:
-##                        response = handle_connection_failure(conn, '')
 
     else:
             print 'Error: Invalid Request Made'
