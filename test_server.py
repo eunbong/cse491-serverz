@@ -109,11 +109,11 @@ def test_submit_post_multipart():
                           "--32452685f36942178a5f36fd94e34b63\r\n" + \
                           "Content-Disposition: form-data; name=\"lastname\";" + \
                           " filename=\"lastname\"\r\n\r\n" + \
-                          "taylor\r\n" + \
+                          "Yang\r\n" + \
                           "--32452685f36942178a5f36fd94e34b63\r\n" + \
                           "Content-Disposition: form-data; name=\"firstname\";" + \
                           " filename=\"firstname\"\r\n\r\n" + \
-                          "ben\r\n" + \
+                          "Eunbong\r\n" + \
                           "--32452685f36942178a5f36fd94e34b63\r\n" + \
                           "Content-Disposition: form-data; name=\"key\";" + \
                           " filename=\"key\"\r\n\r\n" + \
