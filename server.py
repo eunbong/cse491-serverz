@@ -41,7 +41,7 @@ def handle_connection(conn):
 
     responsePost = {
                     '/' : 'index.html', \
-                    '/form' : 'formPost.html', \
+                    '/form' : 'form.html', \
                     '/submit' : 'submit.html', \
                     }
 
