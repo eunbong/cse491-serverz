@@ -4,163 +4,83 @@ import socket
 import time
 from urlparse import urlparse, parse_qs
 import urllib
+import cgi
+from StringIO import StringIO
+import jinja2
 
-# Global Variables
-
-header = 'HTTP/1.0 200 OK\r\n' + \
-         'Content-type: text/html\r\n' + \
-         '\r\n'
-
-header2 = 'HTTP/1.0 200 OK\r\n' + \
-          'Content-type: application/x-www-form-urlencoded\r\n' + \
-          '\r\n'
-
-def handle_connection_default(conn, params):
-    defaultRequest = header + '<h1>Hello, world.</h1>' + \
-                     'This is yangeunb\'s Web server.'+ \
-                     '<h1>home</h1>' + \
-                     '<ul>' + \
-                     '<li><a href="/content">Content</a></li>' + \
-                     '<li><a href="/file">File</a></li>' + \
-                     '<li><a href="/image">Image</a></li>' + \
-                     '<li><a href="/form">Form</a></li>' +\
-                     '</ul>'
-
-    return defaultRequest
-    
-def connection_content(conn, params):
-    request = header + '<h1>Here are some Contents</h1>'
-    return request
-    
-
-def connection_file(conn, params):
-    request = header + '<h1>Here is a File</h1>'
-    return request
-
-def connection_image(conn, params):
-    request = header + '<h1>Here is an Image</h1>'
-    return request
-
-def connection_form(conn, params):
-    request = header + \
-              '<h1>Form</h1>' + \
-              "<form action='/submit' method='GET'>"+\
-              "First Name: <input type='text' name='firstname'><br></br>"+\
-              "Last Name: <input type='text' name='lastname'><br></br>"+\
-              "<input type='submit' name='submit'><br></br>"+\
-              "</form>\r\n"
-
-    return request
-
-def connection_submit(conn, params):
-    firstName = params['firstname'][0]
-    lastName = params['lastname'][0]
-
-    request = header + \
-              '<h1>Hello %s %s</h1>'%(firstName,lastName)+\
-              '<a href="/">Home</a><br></br>'+\
-              "This is Eunbong's Web server."
-
-    return request
-        
-
-def handle_connection_failure(conn, params):
-    request = header + \
-              '<h1>Bad Request</h1>'
-    return request
-
-def handle_post_connection(conn, params):
-    request = header2 + '<h1>this is a post method</h1>' + \
-              'This is yangeunb\'s Web server.'+ \
-              '<h1>home</h1>' + \
-              '<ul>' + \
-              '<li><a href="/content">Content</a></li>' + \
-              '<li><a href="/file">File</a></li>' + \
-              '<li><a href="/image">Image</a></li>' + \
-              '<li><a href="/form">Form</a></li>' +\
-              '</ul>'
-    return request
-    
-def handle_post_form(conn, params):
-    request = header2 + \
-              '<h1>Form</h1>' + \
-              "<form action='/submit' method='POST'>"+\
-              "First Name: <input type='text' name='firstname'><br></br>"+\
-              "Last Name: <input type='text' name='lastname'><br></br>"+\
-              "<input type='submit' name='submit'><br></br>"+\
-              "</form>\r\n"
-    return request
-
-def handle_post_submit(conn, params):
-    ''' this code is helping from Jason's code'''
-    headers = []
-    body_exist = False
-    body = ""
-    for line in params.split("\r\n"):
-        if body_exist:
-            body = line
-            continue
-        if line == "":
-            body_exist = True
-        headers.append(line)
-    
-    path = params.split()[1]
-    para = parse_qs(body)
-
-    firstName = para['firstname'][0]
-    lastName = para['lastname'][0]
-
-    request = header2 + \
-              '<h1>this is a post method</h1><br></br>'+\
-              '<h1>Hello %s %s</h1>'%(firstName,lastName)+\
-              '<a href="/">Home</a><br></br>'+\
-              "This is Eunbong's Web server."
-
-    return request
-
+'''
+Codes helping from Ben Taylor's code
+'''
 
 def handle_connection(conn):
-    requestInfo = conn.recv(1000)
+    # Start reading in data from the connection
+    req = conn.recv(1)
+    count = 0
+    while req[-4:] != '\r\n\r\n':
+        req += conn.recv(1)
+
+    # Parse the headers we've received
+    req, data = req.split('\r\n', 1)
+    headers = {}
+    for line in data.split('\r\n')[:-2]:
+        k, v = line.split(': ', 1)
+        headers[k.lower()] = v
+
+    # Parse out the path and related info
+    path = urlparse(req.split(' ', 3)[1])
+
+    # The dict of pages we know how to get to
+    response = {
+                '/' : 'index.html', \
+                '/content' : 'content.html', \
+                '/file' : 'file.html', \
+                '/image' : 'image.html', \
+                '/form' : 'form.html', \
+                '/submit' : 'submit.html', \
+                }
+
+    responsePost = {
+                    '/' : 'index.html', \
+                    '/form' : 'formPost.html', \
+                    '/submit' : 'submit.html', \
+                    }
+
+    # Basic connection information and set up templates
+    loader = jinja2.FileSystemLoader('./templates')
+    env = jinja2.Environment(loader=loader)
+    retval = 'HTTP/1.0 200 OK\r\nContent-type: text/html\r\n\r\n'
+    content = ''
     
-    method = requestInfo.split()[0]
+    # Check if the request is get or post, set up the args
+    args = parse_qs(path[4])
+    if req.startswith('POST '):
+        try:
+            template = env.get_template(responsePost[path[2]])
+        except KeyError:
+            args['path'] = path[2]
+            retval = 'HTTP/1.0 404 Not Found\r\n\r\n'
+            template = env.get_template('404NotFound.html')
+        while len(content) < int(headers['content-length']):
+            content += conn.recv(1)
+        retval = 'HTTP/1.0 200 OK\r\nContent-type: application/x-www-form-urlencoded\r\n\r\n'
+    fs = cgi.FieldStorage(fp=StringIO(content), headers=headers, environ={'REQUEST_METHOD' : 'POST'})
+    args.update(dict([(x, [fs[x].value]) for x in fs.keys()]))
 
-    response = ''
-    
-    if method == "GET":
-        path = requestInfo.split()[1]
-        params = parse_qs(urlparse(path)[4])
-        real_path = urlparse(path)[2]
-        if real_path == '/':
-            response = handle_connection_default(conn, params)
-        elif real_path == '/content':
-            response = connection_content(conn, params)
-        elif real_path == '/file':
-            response = connection_file(conn, params)
-        elif real_path == '/image':
-            response = connection_image(conn, params)
-        elif real_path == '/form':
-            response = connection_form(conn, params)
-        elif real_path == '/submit':
-            response = connection_submit(conn, params)
-        else:
-            response = handle_connection_failure(conn, params)
+    # print retval
+    # Check if we got a path to an existing page
+    try:
+        template = env.get_template(response[path[2]])
+    except KeyError:
+        args['path'] = path[2]
+        retval = 'HTTP/1.0 404 Not Found\r\n\r\n'
+        template = env.get_template('404NotFound.html')
 
-    elif method == "POST":
-        path = requestInfo.split()[1]
-        
-        if path == '/':
-            response = handle_post_connection(conn, '')
-        elif path == '/form':
-            response = handle_post_form(conn, '')
-        elif path == '/submit':
-            response = handle_post_submit(conn, requestInfo)
+    # Render the page
+    retval = retval + template.render(args)
+    conn.send(retval)
 
-    else:
-            print 'Error: Invalid Request Made'
-
-    conn.send(response)
+    # Done here
     conn.close()
-
 
 def main():
     s = socket.socket()         # Create a socket object
@@ -182,4 +102,3 @@ def main():
             
 if __name__ == '__main__':
     main()
-
