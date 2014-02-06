@@ -27,7 +27,7 @@ class FakeConnection(object):
 
 # Test a basic GET call.
 
-def test_handle_connection_slash():
+def test_handle_connection_index():
     conn = FakeConnection("GET / HTTP/1.0\r\n\r\n")
     er = 'HTTP/1.0 200 OK\r\n'
 
@@ -76,10 +76,10 @@ def test_404():
     assert conn.sent[:len(er)] == er, 'Got: %s' % (repr(conn.sent),)
 
 def test_submit_get():
-    fname = "Ben"
-    lname = "Taylor"
+    firstname = "Eunbong"
+    lastname = "Yang"
     conn = FakeConnection("GET /submit?firstname={0}&lastname={1} \
-                           HTTP/1.0\r\n\r\n".format(fname, lname))
+                           HTTP/1.0\r\n\r\n".format(firstname, lastname))
     er = 'HTTP/1.0 200 OK\r\n'
 
     server.handle_connection(conn)
@@ -87,12 +87,14 @@ def test_submit_get():
     assert conn.sent[:len(er)] == er, 'Got: %s' % (repr(conn.sent),)  
 
 def test_submit_post_urlencoded():
-    fname = "Ben"
-    lname = "Taylor"
+    firstname = "Eunbong"
+    lastname = "Yang"
+    content_type = "Content-Type: application/x-www-form-urlencoded\r\n\r\n"
+    name = "firstname={0}&lastname={1}\r\n".format(firstname, lastname)
     conn = FakeConnection("POST /submit HTTP/1.0\r\n" + \
-                           "Content-Length: 29\r\n" + \
-                           "Content-Type: application/x-www-form-urlencoded\r\n\r\n" + \
-                           "firstname={0}&lastname={1}\r\n".format(fname, lname))
+                          "Content-Length: 29\r\n" + \
+                          content_type + \
+                          name)
     er = 'HTTP/1.0 200 OK\r\n'
 
     server.handle_connection(conn)
@@ -118,8 +120,8 @@ def test_submit_post_multipart():
                           "value\r\n" + \
                           "--32452685f36942178a5f36fd94e34b63--\r\n"
                     )
-    fname = 'ben'
-    lname = 'taylor'
+    firstname = 'Eunbong'
+    lastname = 'Yang'
     er = 'HTTP/1.0 200 OK\r\n'
 
     server.handle_connection(conn)
