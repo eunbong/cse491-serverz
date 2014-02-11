@@ -12,3 +12,12 @@ this is yangeunb's Web Server.
 2014-01-23 Eunbong Yang
 
  * Changed server.py and test_server.py to fulfill the requirements.
+
+2014-01-30 Eunbong Yang
+
+ * Changed server.py and test_server.py to fulfill the requirements.
+
+2014-02-06 Eunbong Yang
+
+ * Changed server.py, test_server.py, and send-post-request file, and also
+ * added templates folder contains html files to fulfill the requirements
