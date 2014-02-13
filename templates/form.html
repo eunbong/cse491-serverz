@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+	<h1>Form Page</h1>
+  This page contains the form testing<br /><br />
+	Please enter Your Name Information: <br />
+	<h3>Form Submission via <u>GET</u></h3>
+	<form action="submit" method="GET">
+		First Name: <input type="text" name="firstname" /><br /><br />
+		Last Name: <input type="text" name="lastname" /><br /><br />
+		<input type="submit" name="submit" value="submit" />
+	</form>
+	<h3>Form Submission via <u>POST (multipart/form-data)</u></h3>
+	<form action="submit" method="POST" enctype="multipart/form-data">
+		First Name: <input type="text" name="firstname" /><br /><br />
+		Last Name: <input type="text" name="lastname" /><br /><br />
+		<input type="submit" name="submit" value="submit" />
+	</form>
+	<h3>Form Submission via <u>POST</u></h3>
+	<form action="submit" method="POST">
+		First Name: <input type="text" name="firstname" /><br /><br />
+		Last Name: <input type="text" name="lastname" /><br /><br />
+		<input type="submit" name="submit" value="submit" />
+	</form>
+  <a href="/">Home</a>
+{% endblock %}

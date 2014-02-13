@@ -1,75 +1,58 @@
+#!/usr/bin/env python
 import random
 import socket
 import time
-import urlparse
-
-def index(conn):
-    conn.send('<h1>Hello, world.</h1>')
-    conn.send('<p>This is foo\'s Web server.</p>')
-    conn.send('<p><a href = "content">content</p>')
-    conn.send('<p><a href = "file">file</p>')
-    conn.send('<p><a href = "image">image</p>')
-    conn.send('<p><a href = "form">form</p>')
-
-def content(conn):
-    conn.send('<h1>You have reached the content page</h1>')
-
-def file(conn):
-    conn.send('<h1>You are currently visiting the file page</h1>')
-
-def image(conn):
-    conn.send('<h1>You are looking at the image page</h1>')
-
-def form(conn):
-    conn.send('<form action="/submit" method="POST">')
-    conn.send('<p>Firstname</p><input type="text" name="firstname">')
-    conn.send('<p>Lastname</p><input type="text" name="lastname">')
-    conn.send('<input type="submit" value="Submit">')
-    conn.send('</form>')
-
-def submit(conn, firstname, lastname):
-    conn.send('<h1>Hello Mr. {firstname} '
-              '{lastname}.</h1>'.format(firstname = firstname,
-                                        lastname = lastname))
+from urlparse import urlparse
+from StringIO import StringIO
+from app import make_app
 
 def handle_connection(conn):
-    recieve = conn.recv(1000)
-    recieve = recieve.split('\n')
-    con = recieve[-1]
-    recieve = recieve[0].split()
-    method = recieve[0]
-    path = recieve[1]
-    parsed_url = urlparse.urlparse(path)
-    path = parsed_url.path
+    # Start reading in data from the connection
+    req = conn.recv(1)
+    count = 0
+    env = {}
+    while req[-4:] != '\r\n\r\n':
+        req += conn.recv(1)
 
-    # send a response
-    conn.send('HTTP/1.0 200 OK\r\n')
-    conn.send('Content-type: text/html\r\n')
-    conn.send('\r\n')
+    # Parse the headers we've received
+    req, data = req.split('\r\n',1)
+    headers = {}
+    for line in data.split('\r\n')[:-2]:
+        k, v = line.split(': ', 1)
+        headers[k.lower()] = v
+        
+    # Parse out the path and related info
+    path = urlparse(req.split(' ', 3)[1])
+    env['REQUEST_METHOD'] = 'GET'
+    env['PATH_INFO'] = path[2]
+    env['QUERY_STRING'] = path[4]
+    env['CONTENT_TYPE'] = 'text/html'
+    env['CONTENT_LENGTH'] = 0
 
-    if method == 'GET':
-        if path == '/':
-            index(conn)
-        elif path == '/content':
-            content(conn)
-        elif path == '/file':
-            file(conn)
-        elif path == '/image':
-            image(conn)
-        elif path == '/form':
-            form(conn)
-        elif path == '/submit':
-            parsed_query = urlparse.parse_qs(parsed_url.query)
-            submit(conn, parsed_query['firstname'][0],
-                    parsed_query['lastname'][0])
-    elif method == 'POST':
-        if path == '/':
-            conn.send('<h1>We recieved a POST request!</h1>')
-        elif path == '/submit':
-            parsed_query = urlparse.parse_qs(con)
-            submit(conn, parsed_query['firstname'][0],
-                         parsed_query['lastname'][0])
+    def start_response(status, response_headers):
+        conn.send('HTTP/1.0 ')
+        conn.send(status)
+        conn.send('\r\n')
+        for pair in response_headers:
+            key, header = pair
+            conn.send(key + ': ' + header + '\r\n')
+        conn.send('\r\n')
 
+    content = ''
+    if req.startswith('POST '):
+        env['REQUEST_METHOD'] = 'POST'
+        env['CONTENT_LENGTH'] = headers['content-length']
+        env['CONTENT_TYPE'] = headers['content-type']
+        print headers['content-length']
+
+        while len(content) < int(headers['content-length']):
+            content += conn.recv(1)
+
+    env['wsgi.input'] = StringIO(content)
+    appl = make_app()
+    result = appl(env, start_response)
+    for data in result:
+        conn.send(data)
 
     conn.close()
 

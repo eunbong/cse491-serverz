@@ -1,22 +1,53 @@
-# from http://docs.python.org/2/library/wsgiref.html
+# encoding: utf-8
 
-from wsgiref.util import setup_testing_defaults
+import jinja2
+from urlparse import parse_qs
+import cgi
 
-# A relatively simple WSGI application. It's going to print out the
-# environment dictionary after being updated by setup_testing_defaults
-def simple_app(environ, start_response):
-    setup_testing_defaults(environ)
+def app(environ, start_response):
+    # The dict of pages we know how to get to
+    response = {
+                '/' : 'index.html', \
+                '/content' : 'content.html', \
+                '/file' : 'file.html', \
+                '/image' : 'image.html', \
+                '/form' : 'form.html', \
+                '/submit' : 'submit.html', \
+               }
 
-    status = '200 OK'
-    headers = [('Content-type', 'text/plain')]
+    # Basic connection information and set up templates
+    loader = jinja2.FileSystemLoader('./templates')
+    env = jinja2.Environment(loader=loader)
+    response_headers = [('Content-type', 'text/html')]
 
-    start_response(status, headers)
+    # Check if we got a path to an existing page
+    if environ['PATH_INFO'] in response:
+        status = '200 OK'
+        template = env.get_template(response[environ['PATH_INFO']])
+    else:
+        status = '404 Not Found'
+        template = env.get_template('404NotFound.html')
 
-    ret = ["%s: %s\n" % (key, value)
-           for key, value in environ.iteritems()]
-    ret.insert(0, "This is your environ.  Hello, world!\n\n")
+    # Set up template arguments
+    x = parse_qs(environ['QUERY_STRING']).iteritems()
+    args = {k : v[0] for k,v in x}
+    args['path'] = environ['PATH_INFO']
 
-    return ret
+    # Grab POST args if there are any
+    if environ['REQUEST_METHOD'] == 'POST':
+        headers = {k[5:].lower().replace('_','-') : v \
+                    for k,v in environ.iteritems() if(k.startswith('HTTP'))}
+        headers['content-type'] = environ['CONTENT_TYPE']
+        headers['content-length'] = environ['CONTENT_LENGTH']
+        fs = cgi.FieldStorage(fp=environ['wsgi.input'], \
+                                headers=headers, environ=environ)
+        args.update({x : fs[x].value for x in fs.keys()})
+
+    args = {unicode(k, "utf-8") : unicode(v, "utf-8") for k,v in args.iteritems()}
+    print args
+    # Return the page
+    start_response(status, response_headers)
+    return [bytes(template.render(args))]
 
 def make_app():
-    return simple_app
+    return app
