@@ -27,21 +27,30 @@ class FakeConnection(object):
 
 # Test a basic GET call.
 
+<<<<<<< HEAD
 def test_handle_connection_index():
+=======
+def test_handle_connection():
+>>>>>>> e77f2fc738ef6ccc259923fb42d8deae606df1c3
     conn = FakeConnection("GET / HTTP/1.0\r\n\r\n")
     expected_return = 'HTTP/1.0 200 OK\r\n' + \
                       'Content-type: text/html\r\n' + \
                       '\r\n' + \
                       '<h1>Hello, world.</h1>' + \
+<<<<<<< HEAD
                       '<p>This is foo\'s Web server.</p>' + \
                       '<p><a href = "content">content</p>' + \
                       '<p><a href = "file">file</p>' + \
                       '<p><a href = "image">image</p>' \
                       '<p><a href = "form">form</p>'
+=======
+                      'This is ctb\'s Web server.'
+>>>>>>> e77f2fc738ef6ccc259923fb42d8deae606df1c3
 
     server.handle_connection(conn)
 
     assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+<<<<<<< HEAD
 
 def test_handle_connection_content():
     conn = FakeConnection("GET /content HTTP/1.0\r\n\r\n")
@@ -118,3 +127,5 @@ def test_handle_connection_submit_post():
                                     '\r\n' + \
                                     '<h1>Hello Mr. X Y</h1>'
     server.handle_connection(conn)
+=======
+>>>>>>> e77f2fc738ef6ccc259923fb42d8deae606df1c3
