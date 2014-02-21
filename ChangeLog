@@ -2,25 +2,16 @@
 
  * Initialized repository, created server.py and README.
 
-<<<<<<< HEAD
 2014-01-14 Eunbong Yang
-=======
-2014-01-14  Eunbong Yang
->>>>>>> master
 
  * Updated server.py to print
  
  Hello, world
-<<<<<<< HEAD
-this is yangeunb's Web Server.
-=======
 this is yangeunb's Web Server. 
->>>>>>> master
 
 2014-01-23 Eunbong Yang
 
  * Changed server.py and test_server.py to fulfill the requirements.
-<<<<<<< HEAD
 
 2014-01-30 Eunbong Yang
 
@@ -35,5 +26,3 @@ this is yangeunb's Web Server.
 
  * Changed server.py, test_server.py, and app.py, and also
  * added templates folder contains html files to fulfill the requirements
-=======
->>>>>>> master
