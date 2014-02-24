@@ -1,53 +1,116 @@
-# encoding: utf-8
+#! /usr/bin/env python
 
-import jinja2
-from urlparse import parse_qs
 import cgi
+import jinja2
+import os
+import traceback
+import urllib
+from StringIO import StringIO
+from urlparse import urlparse, parse_qs
+from wsgiref.simple_server import make_server
 
-def app(environ, start_response):
-    # The dict of pages we know how to get to
-    response = {
-                '/' : 'index.html', \
-                '/content' : 'content.html', \
-                '/file' : 'file.html', \
-                '/image' : 'image.html', \
-                '/form' : 'form.html', \
-                '/submit' : 'submit.html', \
-               }
 
-    # Basic connection information and set up templates
+def render_page(page, params):
     loader = jinja2.FileSystemLoader('./templates')
     env = jinja2.Environment(loader=loader)
-    response_headers = [('Content-type', 'text/html')]
+    template = env.get_template(page)
+    x = template.render(params).encode('latin-1', 'replace')
+    return str(x)
 
-    # Check if we got a path to an existing page
-    if environ['PATH_INFO'] in response:
-        status = '200 OK'
-        template = env.get_template(response[environ['PATH_INFO']])
-    else:
-        status = '404 Not Found'
-        template = env.get_template('404NotFound.html')
+# Get a list of all files in a directory
+def get_contents(dir):
+    list = []
+    for file in os.listdir(dir):
+        list.append(file)
+    return list
 
-    # Set up template arguments
-    x = parse_qs(environ['QUERY_STRING']).iteritems()
-    args = {k : v[0] for k,v in x}
-    args['path'] = environ['PATH_INFO']
+def get_file(file_in):
+    fp = open(file_in, 'rb')
+    data = [fp.read()]
+    fp.close
+    return data
 
-    # Grab POST args if there are any
-    if environ['REQUEST_METHOD'] == 'POST':
-        headers = {k[5:].lower().replace('_','-') : v \
-                    for k,v in environ.iteritems() if(k.startswith('HTTP'))}
-        headers['content-type'] = environ['CONTENT_TYPE']
-        headers['content-length'] = environ['CONTENT_LENGTH']
-        fs = cgi.FieldStorage(fp=environ['wsgi.input'], \
-                                headers=headers, environ=environ)
-        args.update({x : fs[x].value for x in fs.keys()})
+class MyApp(object):
+    def __call__(self, environ, start_response):
+        options = {'/'            : self.index,
+                   '/content'     : self.content,
+                   '/file'       : self.File,
+                   '/image'      : self.Image,
+                   '/form'        : self.form,
+                   '/submit'      : self.submit  }
 
-    args = {unicode(k, "utf-8") : unicode(v, "utf-8") for k,v in args.iteritems()}
-    print args
-    # Return the page
-    start_response(status, response_headers)
-    return [bytes(template.render(args))]
+        path = environ['PATH_INFO']
+        if path[:5] == '/text':
+            return self.text(environ, start_response) 
+        elif path[:5] == '/pics':
+            return self.pics(environ, start_response) 
+        page = options.get(path)
+
+        if page is None:
+            return self.error(environ, start_response)
+
+        return page(environ, start_response)
+
+    def error(self, environ, start_response):
+        start_response('404 Not Found', [('Content-type', 'text/html')])
+        return render_page('404NotFound.html','')
+
+    def index(self, environ, start_response):
+        start_response('200 OK', [('Content-type', 'text/html')])
+        return render_page('index.html','')
+
+    def content(self, environ, start_response):
+        start_response('200 OK', [('Content-type', 'text/html')])
+        return render_page('content.html','')
+
+    def File(self, environ, start_response):
+        start_response('200 OK', [('Content-type', 'text/html')])
+        params = dict(names=get_contents('files'))
+        return render_page('file.html', params)
+
+    def Image(self, environ, start_response):
+        start_response('200 OK', [('Content-type', 'text/html')])
+        params = dict(names=get_contents('images'))
+        return render_page('image.html', params)
+
+    def form(self, environ, start_response):
+        start_response('200 OK', [('Content-type', 'text/html')])
+        return render_page('form.html','')
+
+    def submit(self, environ, start_response):
+        method = environ['REQUEST_METHOD']
+        if method == 'GET':
+            return self.handle_get(environ, start_response)
+        else:
+            return self.handle_post(environ, start_response)
+
+    def handle_get(self, environ, start_response):
+        start_response('200 OK', [('Content-type', 'text/html')])
+        params = parse_qs(environ['QUERY_STRING'])
+        return render_page('submit.html', params)
+
+    def handle_post(self, environ, start_response):
+        con_type = environ['CONTENT_TYPE']
+        headers = {}
+        params ={} 
+        for k, v in environ.iteritems():
+            headers['content-type'] = environ['CONTENT_TYPE']
+            headers['content-length'] = environ['CONTENT_LENGTH']
+            fs = cgi.FieldStorage(fp=environ['wsgi.input'], \
+                                  headers=headers, environ=environ)
+            params.update({x: [fs[x].value] for x in fs.keys()}) 
+        start_response('200 OK', [('Content-type', con_type)])
+        return render_page('submit.html', params)
+
+    def text(self, environ, start_response):
+        start_response('200 OK', [('Content-type', 'text/plain')])
+        text_file = './files/' + environ['PATH_INFO'][5:]
+        return get_file(text_file)
+
+    def pics(self, environ, start_response):
+        start_response('200 OK', [('Content-type', 'image/jpeg')])
+        pic_file = './images/' + environ['PATH_INFO'][5:]
+        return get_file(pic_file)
 
 def make_app():
-    return app
+    return MyApp()
