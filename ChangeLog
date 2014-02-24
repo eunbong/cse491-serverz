@@ -26,3 +26,8 @@ this is yangeunb's Web Server.
 
  * Changed server.py, test_server.py, and app.py, and also
  * added templates folder contains html files to fulfill the requirements
+
+2014-02-24 Eunbong Yang
+
+ * Modified server.py, test_server.py, app.py, and html files in templates.
+ * Added images and files folder contains image files and text files.
