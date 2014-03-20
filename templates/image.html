@@ -3,9 +3,9 @@
 	<h1>Image Page</h1>
 	This page contains images.<br />
 	<ul>
-{% for name in names %}
-		<a href='/pics/{{ name }}'>{{ name }}<br>
-{% endfor %}
+	{% for name in names %}
+		<a href='/pics/{{ name }}'>{{ name }}</a><br>
+	{% endfor %}
 	</ul>
 	<a href="/">Home</a>
 {% endblock %}
