@@ -11,12 +11,12 @@ code 200
 follow test.txt
 find "This is the first test text file."
 
-go /images
+go /image
 code 200
 follow googleLogo.png
 code 200
 
-go /images_thumb
+go /image_thumb
 code 200
 follow rose.png
 code 200

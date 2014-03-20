@@ -32,12 +32,13 @@ def get_file(file_in):
 
 class MyApp(object):
     def __call__(self, environ, start_response):
-        options = {'/'          : self.index,
-                   '/content'   : self.content,
-                   '/file'      : self.File,
-                   '/image'     : self.Image,
-                   '/form'      : self.form,
-                   '/submit'    : self.submit  }
+        options = {'/'              : self.index,
+                   '/content'       : self.content,
+                   '/file'          : self.File,
+                   '/image'         : self.Image,
+                   '/image_thumb'   : self.image_thumb,
+                   '/form'          : self.form,
+                   '/submit'        : self.submit  }
 
         path = environ['PATH_INFO']
         if path[:5] == '/text':
@@ -72,6 +73,11 @@ class MyApp(object):
         start_response('200 OK', [('Content-type', 'text/html')])
         params = dict(names=get_contents('images'))
         return render_page('image.html', params)
+
+    def image_thumb(self, environ, start_response):
+        start_response('200 OK', [('Content-type', 'text/html')])
+        params = dict(names=get_contents('images'))
+        return render_page('image_thumb.html', params)
 
     def form(self, environ, start_response):
         start_response('200 OK', [('Content-type', 'text/html')])

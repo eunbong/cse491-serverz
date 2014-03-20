@@ -31,3 +31,10 @@ this is yangeunb's Web Server.
 
  * Modified server.py, test_server.py, app.py, and html files in templates.
  * Added images and files folder contains image files and text files.
+
+2014-03-20 Eunbong Yang
+
+ * Modified server.py, test_server.py, app.py, and html files in templates.
+ * Added image_thumb.html in templates folder and some images in images folder.
+ * Added twill-tests files to test.
+ * Did project number 5 thumbnail images.
