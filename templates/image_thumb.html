@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+	<h1>Image Thumbnail Page</h1>
+	This page contains thumbnail images.<br />
+	<ul>
+{% for name in names %}
+		<a href='/pics/{{ name }}'>{{ name }}<br>
+{% endfor %}
+	</ul>
+	
+	<table width=500 border=0 cellspacing=5>
+		{% for name in names %}
+			{% if loop.index is divisibleby 6 or loop.first %}
+			<tr>
+			{% endif %}
+				<td width=60 height=60 align="center" bgcolor="#F5F5F5">
+					<a href='/pics/{{ name }}'>
+						<img src='/pics/{{ name }}' width=100 height=100>
+					</a>
+				</td>
+			{% if (loop.index + 1) is divisibleby 6 or loop.last %}
+			</tr>
+			{% endif %}
+		{% endfor %}
+	</table>
+
+	<a href="/">Home</a>
+{% endblock %}
