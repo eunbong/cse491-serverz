@@ -11,6 +11,7 @@ import argparse
 import imageapp
 import quixote
 from quixote.demo.altdemo import create_publisher
+import os
 
 def handle_connection(conn, port):
     request = conn.recv(1)
@@ -73,11 +74,13 @@ def handle_connection(conn, port):
     conn.close()
 
 def get_args():
-    app_list = ['altdemo', 'image', 'myapp']
+    app_list = ['altdemo', 'image', 'myapp', 'quotes', 'chat']
     parser = argparse.ArgumentParser()
+    
     parser.add_argument('-A', action = "store",
                               dest = 'arg_app',
                               help = "The application to run")
+    
     parser.add_argument('-p', action = "store",
                               default = 0,
                               dest = 'arg_port',
@@ -144,6 +147,13 @@ def main(socketmodule=None):
         print 'Starting server on', host, port
         print 'The Web server URL for this would be http://%s:%d/' % (host, port)
         httpd.serve_forever()
+
+    elif app in ('quotes', 'chat'):
+        if port == 0:
+            port = random.randint(8000, 9999)
+        os.chdir(app)
+        os.system("python2.7 %s-server %d" % (app, port))
+        
 
 if __name__ == '__main__':
     main()

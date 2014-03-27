@@ -38,3 +38,9 @@ this is yangeunb's Web Server.
  * Added image_thumb.html in templates folder and some images in images folder.
  * Added twill-tests files to test.
  * Did project number 5 thumbnail images.
+
+2014-03-27 Eunbong Yang
+
+ * Modified server.py and __init__.py, image.py, root.py in imageapp folder
+ * Modified base.html, upload.html in teamplates inside of imageapp folder
+ * Did project number 4 support JPEG and TIFF
