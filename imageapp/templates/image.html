@@ -1,9 +1,54 @@
 {% extends "base.html" %}
 
 {% block content %}
+<p></p>
+<a href='/'>Home</a>
+<p></p>
+
 Here is your image:
 <p>
-<img widht=40% src='image_raw?special=latest' />
-</p>
+<div id="imageContainer"></div>
+<p>
+<h2>Comments</h2>
+<ul id="comments"></ul>
+<input type="text" id='add_comment' />
+<button id="add_comment_button">Add Comment</button>
+<script type="text/javascript">
+var imageNum = window.location.href.split("?imageNum=")[1]
 
+imageHtml = ''
+
+if($.isNumeric(imageNum)) {
+    imageHtml = "<img width=40% src='image_raw?num=" + imageNum + "' />"
+    console.log(imageHtml)
+} else {
+    // Just show the latest if they're a jerk and used a non numeric value
+    imageHtml = "<img width=40% src='image_raw?special=latest'/>"
+}
+
+
+
+$("#imageContainer").append(imageHtml)
+
+$.post("get_comments?num=" + imageNum,
+    function(xml) {
+        console.log(xml)
+        $("comment", xml).each( function(id) {
+            comment = $("comment", xml).get(id)
+            $(comments).append("<li>" + ($("text", comment).text()) + "</li>")
+        });
+    });
+
+$("#add_comment_button").click(function() {
+    $.post("add_comment",
+        {
+            num : imageNum,
+            comment : $("#add_comment").val(),
+        })
+    .success(function(){
+        $("#comments").append("<li>" + $("#add_comment").val() + "</li>")
+        $("#add_comment").val('')
+    })
+});
+</script>
 {% endblock %}
