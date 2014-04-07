@@ -44,3 +44,14 @@ this is yangeunb's Web Server.
  * Modified server.py and __init__.py, image.py, root.py in imageapp folder
  * Modified base.html, upload.html in teamplates inside of imageapp folder
  * Did project number 4 support JPEG and TIFF
+
+2014-04-03 Eunbong Yang
+
+ * Modified server.py and __init__.py, image.py, root.py in imageapp folder
+ * Modified base, index, image.html in templates inside of imageapp folder
+ * Added image_list.html, upload2.html, upload2_receive.html
+ * Did project number 8 for commenting on the images
+ * Did project number 23 for URL handler each image is referred to by its num
+ * /image_raw?num=ImageNumber
+ * In the image_list.html, you can click the image to see what each image's
+ * number is.
