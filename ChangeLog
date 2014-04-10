@@ -55,3 +55,13 @@ this is yangeunb's Web Server.
  * /image_raw?num=ImageNumber
  * In the image_list.html, you can click the image to see what each image's
  * number is.
+
+2014-04-10 Eunbong Yang
+
+ * Added cookieapp.twill, cookieapp.py, and modified server.py
+ * Utilize SQLite to store images
+ * Did project number 16 for adding data persistence in sqlite
+ * Did project number 27 for implementing starring, ranking, and a simple
+ * recommendation system for image app image list
+ * Added image_store table to implement the image score
+ * Two buttons for voting image (upvote to increasing, downvote for decreasing)
