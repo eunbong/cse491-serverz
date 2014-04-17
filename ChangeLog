@@ -65,3 +65,14 @@ this is yangeunb's Web Server.
  * recommendation system for image app image list
  * Added image_store table to implement the image score
  * Two buttons for voting image (upvote to increasing, downvote for decreasing)
+
+2014-04-17 Eunbong Yang
+
+ * Added style.css and img folder for adding image for css
+ * Did project number 3 for swiping a template from oswd.org and puting it in
+ * place on imageapp server. Downloaded from oswd.org's sample - Fruitopia
+ * Did project number 12 for implementing AJAX image upload with JQuery.
+ * On the page of the second upload version, it will show successfully upload
+ * or not in the database when you upload an image. The message will come up
+ * depends on whether put information in the database successfully or not.
+

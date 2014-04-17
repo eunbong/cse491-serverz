@@ -1,11 +1,53 @@
 {% extends "base.html" %}
-
+{% block title %}
+Upload Image Version 2
+{% endblock %}
 {% block content %}
-Upload an image (jpg, png, or tif) (other version):
+<div class="contentText">
+<h3>Upload an image (jpg, png, or tif) (other version):</h3>
 
-<form enctype='multipart/form-data' action='upload2_receive' method='POST'>
-Filename: <input type='file' name='file'><p>
-<input type='submit'>
-</form>
+<p>
+	<form id='form' enctype='multipart/form-data' action='upload_receive' method='POST'>
+	Filename: <input type='file' name='file'><br />
+	<input type='submit'>
+	</form>
+</p>
+
+<center>
+	<div id='success', style="display:none">This image is successfully uploaded. Congratulations!</div>
+	<div id='failure', style="display:none">Unfortunately, this image is failed to upload. Please try again!</div>
+</center>
+<img id='image' width=40% src=''/>
+</div>
+
+<script type='text/javascript'>
+$(document).ready(function(e) {
+
+  $("#form").on('submit', (function(e) {
+    e.preventDefault();
+    var formData = new FormData(this);
+
+    $.ajax({
+      type:'POST',
+      url:$(this).attr('action'),
+      data:formData,
+      cache:false,
+      contentType:false,
+      processData:false,
+      success:function(data) {
+        console.log('success!');
+        $('#success').fadeIn()
+        $('#image').attr('src', '/image_raw?special=latest')
+        $('#image').attr('style', 'max-height:400px')
+
+      },
+      error:function(data) {
+        console.log('error!');
+        $('#failure').fadeIn()
+      }
+    });
+  }));
+});
+</script>
 
 {% endblock %}

@@ -1,19 +1,10 @@
 {% extends "base.html" %}
-
+{% block title %}
+Home
+{% endblock %}
 {% block content %}
-<h1>Version 1</h1>
-<ul><a href='upload'>Upload an image</a></ul>
-<ul><a href='image'>Show most recent image</a></ul>
-<p>
-<h2>Version 2</h2>
-<ul><a href='upload2'>Upload an image</a></ul>
-<ul><a href='image'>Show most recent image</a></ul>
+<h3>Here is the <b>MOST RECENT</b> Image is:</h3>
 
-<p>
-<h3>All Images that you Uploaded</h3>
-<ul><a href='image_list'>All images</a></ul>
-<hr>
-Your the <b>MOST RECENT</b> Image is:
-<p>
 <img width=40% src='image_raw'/>
+
 {% endblock %}

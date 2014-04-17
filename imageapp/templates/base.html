@@ -2,11 +2,71 @@
 <html>
 	<head>
 		<script src='jquery'></script>
-
+		
 		<meta http-equiv="Content-Type" content="text/html">
+		<style type="text/css">{% include "style.css" %}</style>
+		
+		<title>
+		{% block title %}
+		{% endblock %}
+		</title>
+		
+		<!--style href="css/style.css" type="text/css" rel="stylesheet" /-->
 	</head>
 	<body>
+		<div id="page_wrapper">
+			<div id="page_header">
+				<h1>Image Upload Page</h1>
+				<h2>CSS Web Design Template</h2>
+			</div>
+			<div id="menu_bar">
+			<ul>
+				<li><a href='recent_image'>Most Recent Image Uploaded</a></li>
+			</ul>
+			</div>
+			
+			<div id="content_wrapper">
+			
+			<div id="right_side">
+			
+				<h3>Version 1 Upload</h3>
+				
+				<ul class="arrow_list">
+					<li><a href="upload">Upload an image</a></li>
+					<li><a href="image">Recent image</a></li>
+				</ul>
+				<p></p>
+				
+				<h3>Version 2 Upload</h3>
+				
+				<ul class="arrow_list">
+					<li><a href="upload2">Upload an image</a></li>
+					<li><a href="image">Recent image</a></li>
+				</ul>
+				
+				<h3>All Images that you Uploaded</h3>
+				
+				<ul class="arrow_list">
+					<li><a href="image_list">All Images</a></li>
+				</ul>
+				
+			</div>
+			
+			<div id="left_side">
+			
 {% block content %}
 {% endblock %}
+
+			</div>
+			<div id="spacer"></div>
+			</div>
+			
+			<div id="page_footer">
+			
+				<p>&copy; 2006 Darren Hester, DesignsByDarren.com, Some Rights Reserved.<br />
+				<a href="http://validator.w3.org/check?uri=referer" target="_blank">Valid XHTML 1.0 Transitional</a></p>
+			
+			</div>
+		</div>
 	</body>
 </html>
