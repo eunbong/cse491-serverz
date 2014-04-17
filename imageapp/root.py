@@ -26,6 +26,12 @@ class RootDirectory(Directory):
     def recent_image(self):
         return html.render('recent_image.html')
 
+    @export(name='set')
+    def set(self):
+        response = quixote.get_response()
+        print response
+        return response
+
     @export(name='upload')
     def upload(self):
         return html.render('upload.html')
