@@ -16,6 +16,16 @@ class RootDirectory(Directory):
     def jquery(self):
         return open('jquery-1.11.0.min.js').read()
 
+    @export(name='css')
+    def css(self):
+        response = quixote.get_response()
+        response.set_content_type('text/css')
+        return html.load_file('style.css')
+
+    @export(name='recent_image')
+    def recent_image(self):
+        return html.render('recent_image.html')
+
     @export(name='upload')
     def upload(self):
         return html.render('upload.html')
@@ -164,3 +174,65 @@ class RootDirectory(Directory):
             i = -1
 
         return image.decrement_image_score(i)
+
+    #CSS image loading
+
+    @export(name='body.jpg')
+    def body_jpg(self):
+        data = html.get_image('body.jpg')
+        return data
+
+    @export(name='bg.jpg')
+    def bg_jpg(self):
+        data = html.get_image('bg.jpg')
+        return data
+
+    @export(name='content.jpg')
+    def content_jpg(self):
+        data = html.get_image('content.jpg')
+        return data
+
+    @export(name='content_bg.jpg')
+    def content_bg_jpg(self):
+        data = html.get_image('content_bg.jpg')
+        return data
+
+    @export(name='header.jpg')
+    def header_jpg(self):
+        data = html.get_image('header.jpg')
+        return data
+
+    @export(name='menubuttom.jpg')
+    def menubottom_jpg(self):
+        data = html.get_image('menubottom.jpg')
+        return data
+
+    @export(name='arrow.gif')
+    def arrow_gif(self):
+        data = html.get_image('arrow.gif')
+        return data
+
+    @export(name='drop_shadow.gif')
+    def drop_shadow_gif(self):
+        data = html.get_image('drop_shadow.gif')
+        return data
+
+    @export(name='footer.gif')
+    def footer_gif(self):
+        data = html.get_image('footer.gif')
+        return data
+
+    @export(name='menu_bg.gif')
+    def menu_bg_gif(self):
+        data = html.get_image('menu_bg.gif')
+        return data
+
+    @export(name='menu_hover_bg.gif')
+    def menu_hover_bg_gif(self):
+        data = html.get_image('menu_hover_bg.gif')
+        return data
+
+    @export(name='menu_hover.gif')
+    def menu_hover_gif(self):
+        data = html.get_image('menu_hover.gif')
+        return data

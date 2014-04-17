@@ -1,11 +1,13 @@
 {% extends "base.html" %}
-
+{% block title %}
+Recent Image
+{% endblock %}
 {% block content %}
 <p></p>
 <a href='/'>Home</a>
 <p></p>
 
-Here is your image:
+<h3>Here is your image:</h3>
 <p>
 <div id="imageContainer"></div>
 <p>
@@ -15,8 +17,8 @@ Score: <span id="score"></span>
 <p>
 <button id='downvote_button'>Downvote</button>
 <p>
-<h2>Comments</h2>
-<ul id="comments">
+<h3>Comments</h3>
+<ul class="arrow_list" id="comments">
 </ul>
 <input type="text" id='add_comment' />
 <button id="add_comment_button">Add Comment</button>
@@ -53,7 +55,7 @@ $.post("get_comments?num=" + imageNum,
         console.log(xml)
         $("comment", xml).each( function(id) {
             comment = $("comment", xml).get(id)
-            $(comments).append("<li>" + ($("text", comment).text()) + "</li>")
+            $(comments).prepend("<li>" + ($("text", comment).text()) + "</li>")
         });
     });
 
@@ -64,7 +66,7 @@ $("#add_comment_button").click(function() {
             comment    :   $("#add_comment").val(),
         })
     .success(function(){
-        $("#comments").prepend("<li>" + $("#add_comment").val() + "</li>")
+        $("#comments").append("<li>" + $("#add_comment").val() + "</li>")
         $("#add_comment").val('')
     })
 });
